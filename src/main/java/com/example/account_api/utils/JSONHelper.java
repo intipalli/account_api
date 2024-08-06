@@ -1,4 +1,4 @@
-package com.example.account_api.Utils;
+package com.example.account_api.utils;
 
 import org.json.JSONObject;
 import com.example.account_api.model.Customer;
