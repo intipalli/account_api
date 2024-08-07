@@ -24,6 +24,7 @@ import com.example.account_api.model.TokenController;
 import com.example.account_api.utils.JSONHelper;
 import com.example.account_api.model.Token;
 import com.example.account_api.utils.JSONHelper;
+import com.example.account_api.controller.TokenController;
 
 @RestController
 @RequestMapping("/register")
