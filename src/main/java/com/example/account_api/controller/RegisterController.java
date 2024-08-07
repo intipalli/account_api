@@ -18,19 +18,22 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.account_api.model.Customer;
+import com.example.account_api.model.TokenController;
+import com.example.account_api.utils.JSONHelper;
 
 @RestController
 @RequestMapping("/register")
 public class RegisterController {
 
-    @PostMapping("/customers")
+    @PostMapping
     public ResponseEntity<?> addCustomer(@RequestBody Customer newCustomer, UriComponentsBuilder uri) {
         if (newCustomer.getId() != 0 || newCustomer.getName() == null || newCustomer.getEmail() == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        postNewCustomer(newCustomer);
+        String jsonObj = JSONHelper.javaToJson(newCustomer);
 
+        postNewCustomer(jsonObj);
        
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(newCustomer.getId()).toUri();
@@ -38,7 +41,7 @@ public class RegisterController {
         return response;
     }
 
-    private void postNewCustomer(String json) {
+    private void postNewCustomer(String json_string) {
 		try {
 
 			URL url = new URL("http://localhost:8080/api/customers");
@@ -46,12 +49,11 @@ public class RegisterController {
 			conn.setDoOutput(true);
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type", "application/json");
-	  		Token token = TokenAPI.getAppUserToken();
+	  		Token token = TokenController.getAppUserToken();
 	  		conn.setRequestProperty("authorization", "Bearer " + token.getToken());
-	  		// conn.setRequestProperty("tokencheck", "false");
 
 			OutputStream os = conn.getOutputStream();
-			os.write(json.getBytes());
+			os.write(json_string.getBytes());
 			os.flush();
 
 			if (conn.getResponseCode() != HttpURLConnection.HTTP_CREATED) {
