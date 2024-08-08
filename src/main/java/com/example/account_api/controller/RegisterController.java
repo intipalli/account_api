@@ -9,7 +9,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,19 +27,28 @@ import com.example.account_api.utils.JSONHelper;
 @RequestMapping("/register")
 public class RegisterController {
 
-	@PostMapping("/customers")
-	public ResponseEntity<?> addCustomer(@RequestBody Customer newCustomer, UriComponentsBuilder uri) {
-		if (newCustomer.getId() != 0 || newCustomer.getName() == null || newCustomer.getEmail() == null) {
-			return ResponseEntity.badRequest().build();
-		}
-
-		postNewCustomer(JSONHelper.javaToJson(newCustomer));
-
-		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-				.buildAndExpand(newCustomer.getId()).toUri();
-		ResponseEntity<?> response = ResponseEntity.created(location).build();
-		return response;
+	@GetMapping
+	public String healthCheck() {
+		return "<h3>The Authentication service is up and running!</h3>";
 	}
+
+	@PostMapping("/customers")
+    public ResponseEntity<?> addCustomer(@RequestBody Customer newCustomer, UriComponentsBuilder uri) {
+        if (newCustomer.getId() != 0 || newCustomer.getName() == null || newCustomer.getEmail() == null) {
+            return ResponseEntity.badRequest().body("Customer ID should not be zero and name/email should not be null.");
+        }
+        Customer customer = TokenController.getCustomerByName(newCustomer.getEmail());
+
+        if (customer == null || !customer.getEmail().equalsIgnoreCase(newCustomer.getEmail())) {
+            postNewCustomer(JSONHelper.javaToJson(newCustomer));
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Customer with the same email already exists.");
+        }
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(newCustomer.getId()).toUri();
+        return ResponseEntity.created(location).build();
+    }
 
 	private void postNewCustomer(String json) {
 		try {

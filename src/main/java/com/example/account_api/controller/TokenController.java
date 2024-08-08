@@ -31,7 +31,7 @@ public class TokenController {
 
     @PostMapping
     public ResponseEntity<?> createTokenForCustomer(@RequestBody Customer customer) {
-        String username = customer.getName();
+        String username = customer.getEmail();
         String password = customer.getPassword();
 
         if (username != null && username.length() > 0 && password != null && password.length() > 0) {
@@ -48,7 +48,7 @@ public class TokenController {
             return true;
         }
         Customer cust = getCustomerByName(username);
-        if (cust != null && cust.getName().equals(username) && cust.getPassword().equals(password)) {
+        if (cust != null && cust.getEmail().equals(username) && cust.getPassword().equals(password)) {
             return true;
         }
         return false;
@@ -65,7 +65,7 @@ public class TokenController {
         return new Token(JWTFactory.createToken(username));
     }
 
-    private Customer getCustomerByName(String username) {
+    public static Customer getCustomerByName(String username) {
         try {
             URL url = new URL("http://localhost:8080/api/customers/byname/" + username);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
