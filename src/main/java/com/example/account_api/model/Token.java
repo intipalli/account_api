@@ -1,7 +1,7 @@
-package com.webage.domain;
+package com.example.account_api.model;
 
 public class Token {
-	String token;
+	private String token;
 
 	public Token(String token) {
 		super();

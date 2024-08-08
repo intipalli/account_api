@@ -18,27 +18,28 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.account_api.model.Customer;
+import com.example.account_api.model.Token;
+import com.example.account_api.utils.JSONHelper;
 
 @RestController
 @RequestMapping("/register")
 public class RegisterController {
 
-    @PostMapping("/customers")
-    public ResponseEntity<?> addCustomer(@RequestBody Customer newCustomer, UriComponentsBuilder uri) {
-        if (newCustomer.getId() != 0 || newCustomer.getName() == null || newCustomer.getEmail() == null) {
-            return ResponseEntity.badRequest().build();
-        }
+	@PostMapping("/customers")
+	public ResponseEntity<?> addCustomer(@RequestBody Customer newCustomer, UriComponentsBuilder uri) {
+		if (newCustomer.getId() != 0 || newCustomer.getName() == null || newCustomer.getEmail() == null) {
+			return ResponseEntity.badRequest().build();
+		}
 
-        postNewCustomer(newCustomer);
+		postNewCustomer(JSONHelper.javaToJson(newCustomer));
 
-       
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(newCustomer.getId()).toUri();
-        ResponseEntity<?> response = ResponseEntity.created(location).build();
-        return response;
-    }
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+				.buildAndExpand(newCustomer.getId()).toUri();
+		ResponseEntity<?> response = ResponseEntity.created(location).build();
+		return response;
+	}
 
-    private void postNewCustomer(String json) {
+	private void postNewCustomer(String json) {
 		try {
 
 			URL url = new URL("http://localhost:8080/api/customers");
@@ -46,9 +47,9 @@ public class RegisterController {
 			conn.setDoOutput(true);
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type", "application/json");
-	  		Token token = TokenAPI.getAppUserToken();
-	  		conn.setRequestProperty("authorization", "Bearer " + token.getToken());
-	  		// conn.setRequestProperty("tokencheck", "false");
+			Token token = TokenController.getUserToken();
+			conn.setRequestProperty("authorization", "Bearer " + token.getToken());
+			// conn.setRequestProperty("tokencheck", "false");
 
 			OutputStream os = conn.getOutputStream();
 			os.write(json.getBytes());
