@@ -24,25 +24,34 @@ public class TokenController {
 
     public static Token userToken;
 
-    @GetMapping
-    public String getFakeToken() {
-        return "jwt-fake-token-asdfasdfasfa".toString();
-    }
+    // @GetMapping
+    // public String getFakeToken() {
+    //     return "jwt-fake-token-asdfasdfasfa".toString();
+    // }
 
-    @PostMapping
-    public ResponseEntity<?> createTokenForCustomer(@RequestBody Customer customer) {
-        String username = customer.getEmail();
-        String password = customer.getPassword();
-
-        if (username != null && username.length() > 0 && password != null && password.length() > 0) {
-            if (checkCredentials(username, password)) {
-                ResponseEntity<?> response = ResponseEntity.ok(createToken(username));
-                return response;
-            }
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-
+	@PostMapping
+	public ResponseEntity<?> createTokenForCustomer(@RequestBody Customer customer) {
+		String email = customer.getEmail();
+		String password = customer.getPassword();
+	
+		// Validate email and password
+		if (email == null || email.trim().isEmpty()) {
+			return ResponseEntity.badRequest().body("Email cannot be null or empty.");
+		}
+		if (password == null || password.trim().isEmpty()) {
+			return ResponseEntity.badRequest().body("Password cannot be null or empty.");
+		}
+	
+		// Check credentials and create token if valid
+		if (checkCredentials(email, password)) {
+			Token token = createToken(email);
+			return ResponseEntity.ok().body(token);
+		}
+	
+		// Return unauthorized status if credentials are invalid
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
+	}
+	
     private boolean checkCredentials(String username, String password) {
         if (username.equals("ApiClientApp") && password.equals("secret")) {
             return true;
