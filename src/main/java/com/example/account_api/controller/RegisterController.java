@@ -20,10 +20,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.account_api.model.Customer;
-import com.example.account_api.model.TokenController;
 import com.example.account_api.utils.JSONHelper;
 import com.example.account_api.model.Token;
-import com.example.account_api.utils.JSONHelper;
 import com.example.account_api.controller.TokenController;
 
 @RestController
